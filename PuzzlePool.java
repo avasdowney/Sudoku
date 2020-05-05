@@ -1,7 +1,8 @@
 package sudoku;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -21,8 +22,8 @@ public class PuzzlePool {
 	 */
 	public PuzzlePool(String rootDirectory) {
 		
-		goodPuzzles = new ArrayList<SudokuPuzzle>();
-		badPuzzles = new ArrayList<File>();
+		goodPuzzles = new LinkedList<SudokuPuzzle>();
+		badPuzzles = new LinkedList<File>();
 		File file = new File(rootDirectory);
 
 		if (!file.exists()) {
@@ -43,18 +44,18 @@ public class PuzzlePool {
 	 */
 	private void readPuzzles(File directory) {
 		
-		File[] listFiles = directory.listFiles();
+		File allFiles[] = directory.listFiles();
 		
-		for (int i = 0; i < listFiles.length; i++) {
+		for (int i = 0; i < allFiles.length; i++) {
 			
-			if (listFiles[i].isDirectory()) {
-				readPuzzles(listFiles[i]);
+			if (allFiles[i].isDirectory()) {
+				readPuzzles(allFiles[i]);
 				
 			} else {
 				
 				try {
 					
-					SudokuPuzzle puzzle = new SudokuPuzzle(listFiles[i]);
+					SudokuPuzzle puzzle = new SudokuPuzzle(allFiles[i]);
 					puzzle.initializePuzzle();
 					
 					// holds entire good puzzle
@@ -62,11 +63,11 @@ public class PuzzlePool {
 					
 				} catch (IllegalDataFormatException e) {
 					// holds the file names of the bad puzzles
-					badPuzzles.add(listFiles[i]);
+					badPuzzles.add(allFiles[i]);
 					
 				} catch (IllegalConfigurationException e) {
 					// holds the file names of the bad puzzles
-					badPuzzles.add(listFiles[i]);
+					badPuzzles.add(allFiles[i]);
 					
 				}
 				
@@ -106,12 +107,18 @@ public class PuzzlePool {
 	 */
 	@Override
 	public String toString() {
+		
+		String badPuzzleNames = "";
+		
+		for (Iterator<File> iterator = badPuzzles.iterator(); iterator.hasNext();) {
+			File file = iterator.next();
+			badPuzzleNames += file.getAbsolutePath() + "\n\t";
+		}
+		
 		return "There are " + (goodPuzzles.size() + badPuzzles.size()) + " total"
 			 + " puzzles... \n\t" + badPuzzles.size() + " are bad puzzles \n\t"
-			 + goodPuzzles.size() + " are good puzzles \n\nThe bad puzzles are..." 
-			 + badPuzzles;
+			 + goodPuzzles.size() + " are good puzzles \n\nThe bad puzzles are... \n\t" 
+			 + badPuzzleNames;
 	}
-	
-	
 
 }
